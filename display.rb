@@ -13,7 +13,8 @@ class NilClass
 end
 
 class Display
-  def initialize(board)
+  def initialize(game,board)
+    @game = game
     @board = board
     @cursor_position = [0,0]
   end
@@ -36,25 +37,23 @@ class Display
   end
 
   def colorize(piece, idx1, idx2)
-
     if @cursor_position == [idx1, idx2]
-
       colorize_tile(piece, :yellow)
-
+    elsif potential_move?(piece,idx1, idx2)
+      colorize_tile(piece, :light_yellow)
     elsif (idx1+idx2).even?
-
       colorize_tile(piece, :light_white)
-
     else
-
       colorize_tile(piece, :light_black)
-
     end
-
   end
 
   def colorize_tile(piece, background_color)
       piece.to_s.colorize(:background => background_color, :color => piece.color)
+  end
+
+  def potential_move?(piece, idx1, idx2)
+    r = @board.is_a_potential_move?(idx1,idx2)
   end
 
   def update_display
@@ -63,8 +62,13 @@ class Display
     case c
     # when " "
     #   puts "SPACE"
-    # when "\r"
-    #   puts "RETURN"
+    when "\r"
+      begin
+        @game.change_state!(@cursor_position)
+        render
+      rescue WrongPieceError => e
+        render
+      end
     when "\e[A"
       new_y = @cursor_position[0] - 1
       @cursor_position[0] = new_y if @board.valid_position?([new_y, @cursor_position[1]])
@@ -108,4 +112,7 @@ ensure
   return input
 end
 
+end
+
+class WrongPieceError < StandardError
 end

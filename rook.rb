@@ -1,10 +1,10 @@
 require_relative "directional_pieces"
 require_relative "slideable"
 
-class Queen < SuperPiece
+class Rook < PerpendicularPiece
   include Slidable
 
   def to_s
-    " \u{265B} "
+    " \u{265C} "
   end
 end

@@ -1,7 +1,6 @@
 require_relative "piece"
 
 class PerpendicularPiece < Piece
-
   def move_transforms
     [[1,0],[-1,0],[0,1],[0,-1]]
   end
