@@ -17,11 +17,11 @@ class Pawn < Piece
     path = []
     if board.at_position(next_position).color == nil
       path << next_position
-    end
 
-    next_two_position = [y + delta + delta, x]
-    if board.at_position(next_two_position).color == nil
-      path << next_two_position if @first_move
+      next_two_position = [y + delta + delta, x]
+      if board.at_position(next_two_position).color == nil
+        path << next_two_position if @first_move
+      end
     end
 
     paths << path
