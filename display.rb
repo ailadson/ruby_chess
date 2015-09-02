@@ -2,16 +2,6 @@
 require "colorize"
 require "io/console"
 
-class NilClass
-  def to_s
-    "   "
-  end
-
-  def color
-
-  end
-end
-
 class Display
   def initialize(game,board)
     @game = game
@@ -19,17 +9,38 @@ class Display
     @cursor_position = [0,0]
   end
 
-  def render
+  def render(message_hash = {})
     system "clear"
-    render_header #to_do
+    render_header
     @board.grid.each_with_index do |row, idx1|
       row_string = ""
       row.each_with_index do |piece, idx2|
-        row_string += colorize(piece, idx1, idx2) #to_do
+        row_string += colorize(piece, idx1, idx2)
       end
       puts (row_string + "|#{8-idx1}")
     end
-    # render_instructions #to_do
+    render_messages(message_hash)
+    render_instructions
+  end
+
+  def render_instructions
+    puts "Use the arrow keys to move."
+    puts "Use RETURN key to select piece/move."
+    puts "#{@game.current_player[:color].capitalize}'s move."
+  end
+
+  def render_messages(messages)
+    if messages[:error]
+      puts messages[:error].colorize(:color => :red)
+    end
+
+    if messages[:warning]
+      puts messages[:warning].colorize(:color => :yellow)
+    end
+
+    if messages[:good]
+      puts messages[:good].colorize(:color => :green)
+    end
   end
 
   def render_header
@@ -38,7 +49,7 @@ class Display
 
   def colorize(piece, idx1, idx2)
     if @cursor_position == [idx1, idx2]
-      colorize_tile(piece, :yellow)
+      colorize_tile(piece, :light_blue)
     elsif potential_move?(piece,idx1, idx2)
       colorize_tile(piece, :light_yellow)
     elsif (idx1+idx2).even?
@@ -53,7 +64,7 @@ class Display
   end
 
   def potential_move?(piece, idx1, idx2)
-    r = @board.is_a_potential_move?(idx1,idx2)
+    r = @board.potential_move?([idx1,idx2])
   end
 
   def update_display
@@ -66,8 +77,18 @@ class Display
       begin
         @game.change_state!(@cursor_position)
         render
+      rescue MovingIntoCheckError
+        render(:error => "This move will put you in check!")
       rescue WrongPieceError => e
-        render
+        render(:error => "Not your piece!")
+      rescue BadMoveError => e
+        render(:error => "Incorrect move!")
+      rescue NoMoveError
+        render(:warning => "No move available.")
+      rescue CheckError => e
+        render(:warning => "#{e.message.capitalize} is in check!!!")
+      rescue CheckMateError => e
+        render(:warning => "#{e.message.capitalize} is in checkmate :-(")
       end
     when "\e[A"
       new_y = @cursor_position[0] - 1
@@ -115,4 +136,19 @@ end
 end
 
 class WrongPieceError < StandardError
+end
+
+class BadMoveError < StandardError
+end
+
+class NoMoveError < StandardError
+end
+
+class CheckError < StandardError
+end
+
+class MovingIntoCheckError < StandardError
+end
+
+class CheckMateError < StandardError
 end

@@ -1,6 +1,3 @@
-require_relative "directional_pieces"
-require_relative "slideable"
-
 class Bishop < DiagonalPiece
   include Slidable
 
