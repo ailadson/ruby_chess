@@ -77,6 +77,10 @@ class Display
       begin
         @game.change_state!(@cursor_position)
         render
+      rescue CastlingException
+        render(:good => "You've just done a castle!")
+      rescue BadCastleError => e
+        render(:warning => e.message )
       rescue MovingIntoCheckError
         render(:error => "This move will put you in check!")
       rescue WrongPieceError => e
@@ -151,4 +155,10 @@ class MovingIntoCheckError < StandardError
 end
 
 class CheckMateError < StandardError
+end
+
+class CastlingException < StandardError
+end
+
+class BadCastleError < StandardError
 end

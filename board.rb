@@ -1,6 +1,8 @@
 require_relative "pieces"
+require_relative "castling"
 
 class Board
+  include Castling
 
   SET_UP_HASH = {
     0 => Rook,

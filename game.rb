@@ -19,6 +19,12 @@ class Game
       @board.set_potential_moves!(piece)
       @state = :move
     elsif @state == :move
+      if !@board.in_check?(@current_player[:color]) && @board.castle(pos)
+        @board.reset_potential_moves
+        @state == :move
+        change_players!
+        raise CastlingException
+      end
       unless @board.potential_move?(pos)
         @board.reset_potential_moves
         @state = :explore
